@@ -1,7 +1,21 @@
 # cyrus-jmap-tester
 
-Cyrus JMAP server image for integration testing based on [outoforder/cyrus-imapd-tester](https://github.com/OutOfOrder/containers/blob/master/cyrus-imapd-tester).
-
-The goal is to make a cyrus image for JMAP integration testing.
+Cyrus JMAP server image for integration testing.
 
 This is a work in progress.
+
+## Build
+
+The usual docker build command:
+
+```shell
+docker build -t cyrus-jmap-tester .
+```
+
+## Run
+
+You must map the httpd port from cyrus (8080) and provide a JWT secret:
+
+```shell
+docker run -ti -p 8080:8080 -e JWT_SECRET=hex_secret cyrus-jmap-tester
+```
