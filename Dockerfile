@@ -3,7 +3,8 @@ ARG cyrus_version=3.8.1
 
 RUN apt update && apt install -y rsyslog sscg wget rsync git build-essential autoconf automake libtool pkg-config bison flex libssl-dev libjansson-dev  \
     libxml2-dev libsqlite3-dev libical-dev libsasl2-dev uuid-dev libicu-dev libxapian-dev libpq-dev libbrotli-dev  \
-    libchardet-dev libical-dev libnghttp2-dev shapelib libwslay-dev zlib1g-dev libclamav-dev libcld2-dev libpcre3-dev
+    libchardet-dev libical-dev libnghttp2-dev shapelib libwslay-dev zlib1g-dev libclamav-dev libcld2-dev libpcre3-dev \
+    sasl2-bin
 
 RUN useradd --home-dir /usr/src -g mail cyrus
 RUN cd /usr/src &&  \
@@ -17,6 +18,8 @@ RUN cd /usr/src &&  \
 COPY --chmod=755 entrypoint.sh /usr/local/sbin/
 COPY --chown=cyrus:mail --chmod=600 imapd.conf /etc/
 COPY --chown=cyrus:mail --chmod=600 cyrus.conf /etc/
+RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
+RUN sed -i '5i START=yes' /etc/default/saslauthd
 
 RUN mkdir -p /var/lib/cyrus && chown cyrus:mail /var/lib/cyrus  && \
   mkdir -p /var/spool/cyrus && chown cyrus:mail /var/spool/cyrus && \
@@ -28,7 +31,7 @@ RUN mkdir -p /var/lib/cyrus && chown cyrus:mail /var/lib/cyrus  && \
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-EXPOSE 25 143 465 993 4190 8080
+EXPOSE 143 993 4190 8080
 
 HEALTHCHECK --interval=5s --retries=10 CMD netstat -ltn | grep -c :143 || exit 1
 

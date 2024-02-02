@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 mkdir -p /etc/pki/cyrus-imapd/
 if [ ! -f /etc/pki/cyrus-imapd/cyrus-imapd.pem ]; then
   echo "--- Generating Cyrus Certificates (in /etc/pki/cyrus-imapd)"
@@ -12,9 +13,17 @@ if [ ! -f /etc/pki/cyrus-imapd/cyrus-imapd.pem ]; then
   echo "--- Finished generating certificates"
 fi
 
-mkdir -p /run/cyrus/socket && chown -R cyus:mail /run/cyrus
+rm -f /var/lib/cyrus/jwt/jmap.pem
+{
+  echo "-----BEGIN HMAC KEY-----"
+  echo $JWT_SECRET | base64
+  echo "-----END HMAC KEY-----"
+} > /var/lib/cyrus/jwt/jmap.pem
 
-su cyrus -g mail -c "/usr/sbin/cyrmaster -D"
+chmod 600 /var/lib/cyrus/jwt/jmap.pem
+
+mkdir -p /run/cyrus/socket && chown -R cyrus:mail /run/
+su cyrus -g mail -c "/usr/local/libexec/master -C /etc/imapd.conf -M /etc/cyrus.conf"
 
 echo "Aborted"
 
