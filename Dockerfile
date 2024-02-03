@@ -23,7 +23,7 @@ RUN apt update && apt install -y rsyslog sscg sasl2-bin libssl-dev libjansson-de
 RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 RUN sed -i '5i START=yes' /etc/default/saslauthd
 
-RUN useradd --home-dir /usr/src -g mail --shell /bin/bash cyrus
+RUN useradd --home-dir /usr/src -g mail --groups sasl --shell /bin/bash cyrus
 RUN echo "cyrus:cyrus_pass"|chpasswd
 
 COPY --from=build /usr/local/lib /usr/local/lib
